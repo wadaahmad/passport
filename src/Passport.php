@@ -5,9 +5,13 @@ namespace Laravel\Passport;
 use Carbon\Carbon;
 use DateInterval;
 use DateTimeInterface;
+<<<<<<< HEAD
 use Illuminate\Contracts\Encryption\Encrypter;
 use Laravel\Passport\Contracts\AuthorizationViewResponse as AuthorizationViewResponseContract;
 use Laravel\Passport\Http\Responses\AuthorizationViewResponse;
+=======
+use Illuminate\Support\Facades\Route;
+>>>>>>> parent of 7a026ac... [11.x] Refactor routes to dedicated file (#1464)
 use League\OAuth2\Server\ResourceServer;
 use Mockery;
 use Psr\Http\Message\ServerRequestInterface;
@@ -194,6 +198,31 @@ class Passport
         static::$implicitGrantEnabled = true;
 
         return new static;
+    }
+
+    /**
+     * Binds the Passport routes into the controller.
+     *
+     * @param  callable|null  $callback
+     * @param  array  $options
+     * @return void
+     */
+    public static function routes($callback = null, array $options = [])
+    {
+        $callback = $callback ?: function ($router) {
+            $router->all();
+        };
+
+        $defaultOptions = [
+            'prefix' => 'oauth',
+            'namespace' => '\Laravel\Passport\Http\Controllers',
+        ];
+
+        $options = array_merge($defaultOptions, $options);
+
+        Route::group($options, function ($router) use ($callback) {
+            $callback(new RouteRegistrar($router));
+        });
     }
 
     /**
